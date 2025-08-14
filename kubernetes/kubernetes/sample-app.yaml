@@ -1,0 +1,137 @@
+# sample-app.yaml - Simple demo application for SecureDocs Legal Platform
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: securedocs
+  labels:
+    name: securedocs
+    environment: demo
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: securedocs-demo
+  namespace: securedocs
+  labels:
+    app: securedocs
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: securedocs
+  template:
+    metadata:
+      labels:
+        app: securedocs
+    spec:
+      containers:
+      - name: web
+        image: nginx:1.21
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "100m"
+          limits:
+            memory: "128Mi"
+            cpu: "200m"
+        # Custom page for demo
+        volumeMounts:
+        - name: config
+          mountPath: /usr/share/nginx/html
+      volumes:
+      - name: config
+        configMap:
+          name: demo-content
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: demo-content
+  namespace: securedocs
+data:
+  index.html: |
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>SecureDocs Legal Platform - Demo</title>
+        <style>
+            body { font-family: Arial, sans-serif; margin: 40px; background: #f5f5f5; }
+            .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+            .header { color: #2c3e50; border-bottom: 3px solid #3498db; padding-bottom: 20px; }
+            .feature { background: #ecf0f1; padding: 15px; margin: 15px 0; border-radius: 5px; }
+            .status { color: #27ae60; font-weight: bold; }
+            .tech-stack { background: #f8f9fa; padding: 20px; border-left: 4px solid #007bff; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>SecureDocs Legal Platform</h1>
+                <p><span class="status">SYSTEM OPERATIONAL</span> | Demo Environment</p>
+            </div>
+            
+            <h2>Infrastructure Demo</h2>
+            <div class="feature">
+                <h3>Cloud Infrastructure</h3>
+                <p>[✓] Google Cloud Platform deployment<br>
+                [✓] GKE cluster with auto-scaling<br>
+                [✓] Private Cloud SQL database<br>
+                [✓] Secure VPC networking</p>
+            </div>
+            
+            <div class="feature">
+                <h3>Security & Compliance</h3>
+                <p>[✓] Private cluster configuration<br>
+                [✓] Encrypted storage buckets<br>
+                [✓] IAM security policies<br>
+                [✓] Network firewall rules</p>
+            </div>
+            
+            <div class="feature">
+                <h3>Operational Excellence</h3>
+                <p>[✓] Infrastructure as Code (Terraform)<br>
+                [✓] Kubernetes orchestration<br>
+                [✓] Automated deployments<br>
+                [✓] Resource monitoring</p>
+            </div>
+            
+            <div class="tech-stack">
+                <h3>Technical Stack</h3>
+                <p><strong>Infrastructure:</strong> Google Cloud Platform<br>
+                <strong>Orchestration:</strong> Google Kubernetes Engine<br>
+                <strong>Database:</strong> Cloud SQL PostgreSQL<br>
+                <strong>Storage:</strong> Cloud Storage with lifecycle policies<br>
+                <strong>IaC:</strong> Terraform<br>
+                <strong>Networking:</strong> Private VPC with security controls</p>
+            </div>
+            
+            <div style="margin-top: 30px; text-align: center; color: #7f8c8d;">
+                <p>Deployed by Jeffrey Egbagbe | GCP Administrator Demo</p>
+                <p>Interview Project for Lawlabs Inc.</p>
+            </div>
+        </div>
+    </body>
+    </html>
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: securedocs-service
+  namespace: securedocs
+  labels:
+    app: securedocs
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 80
+    protocol: TCP
+  selector:
+    app: securedocs
