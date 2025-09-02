@@ -1,4 +1,4 @@
-# sample-app.yaml - Simple demo application for SecureDocs Legal Platform
+# app.yaml - demo application for SecureDocs Legal Platform
 
 apiVersion: v1
 kind: Namespace
